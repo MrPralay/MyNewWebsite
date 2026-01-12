@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dearest Love...</title>
+    <link rel="stylesheet" href="proposal_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        (function() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                // If no token exists, send them away immediately!
+                // Change 'index.html' to your actual login page if different
+                window.location.href = "index.html"; 
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="welcomeMessage">My Dearest [Partner's Name Here],</h1>
+        </header>
+        <main>
+            <p class="love-message">
+                Every moment with you is a dream come true. You fill my life with joy, laughter, and an endless love that I cherish more than words can say.
+            </p>
+            <p class="love-message">
+                Today, I want to ask you something that will change our lives forever.
+            </p>
+            <div class="proposal-question">
+                Will you marry me?
+            </div>
+            <div class="buttons-container">
+                <button class="proposal-btn yes-btn" onclick="handleYes()">Yes!</button>
+                <button class="proposal-btn no-btn" onclick="handleNo()">I need more time...</button>
+            </div>
+        </main>
+        <footer>
+            <button class="logout-btn" onclick="logout()">Not ready for this?</button>
+        </footer>
+    </div>
+
+    <script>
+        // You can personalize the welcome message using the logged-in username
+        // For now, let's keep it simple.
+        // If you want to fetch the username from JWT, we can add that later.
+        // document.getElementById('welcomeMessage').innerText = `My Dearest ${USERNAME_HERE},`; 
+
+        function handleYes() {
+            alert("OH MY GOD! I LOVE YOU SO MUCH! ❤️💍");
+            // You can redirect to a "celebration" page or play an animation
+            // window.location.href = "celebration.html"; 
+        }
+
+        function handleNo() {
+            alert("No worries, my love. I'll wait forever for you. Just let me know when you're ready. 😊");
+            // Maybe gently redirect them or show something else
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            // Redirect to your login page
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <script src="proposal.js"></script>
+</body>
+</html>
