@@ -1,22 +1,45 @@
 // This runs as soon as the page loads
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     const welcomeMessage = document.getElementById('welcomeMessage');
-    
-    // 1. Personalize the Greeting by decoding the JWT
+    const questionText = document.getElementById('proposal-text'); // Make sure you have this ID in HTML
+
+    // 1. If no token at all, kick them out immediately
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
     try {
-        if (token) {
-            // Decodes the middle part of the JWT token
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(window.atob(base64));
-            
-            if (payload.username && welcomeMessage) {
-                welcomeMessage.innerText = `My Dearest ${payload.username},`;
+        // 2. ASK THE SERVER FOR THE SECRET DATA (The "Wall")
+        // This is what stops Burp Suite. The server checks the JWT signature.
+        const response = await fetch("/api/dashboard-data", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
             }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Success! Set the greeting and the secret message
+            if (welcomeMessage) {
+                welcomeMessage.innerText = `My Dearest ${data.user},`;
+            }
+            if (questionText) {
+                questionText.innerText = data.message;
+            }
+        } else {
+            // 3. HACK DETECTED! 
+            // If Burp Suite was used to "fake" the login, the server will return 401/403.
+            alert("Security Error: Invalid Session. Please log in properly.");
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
         }
     } catch (e) {
-        console.error("Token decoding failed:", e);
+        console.error("Connection failed:", e);
+        window.location.href = "index.html";
     }
 });
 

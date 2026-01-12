@@ -1,159 +1,135 @@
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Parisienne&family=Montserrat:wght@400;600;700&display=swap');
+
 body {
     margin: 0;
-    font-family: 'Montserrat', sans-serif; /* A clean, modern font */
-    background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%); /* Soft, romantic gradient */
-    color: #4a4a4a; /* Dark gray for good readability */
+    font-family: 'Montserrat', sans-serif;
+    /* Animated Gradient Background */
+    background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ff9a9e, #fad0c4);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #4a4a4a;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden; /* Prevent scroll if content is too large */
+    overflow: hidden;
 }
 
+/* Glassmorphism Container */
 .container {
-    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background */
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 40px;
+    background: rgba(255, 255, 255, 0.75); /* Frosted glass effect */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    padding: 50px;
     text-align: center;
-    max-width: 700px;
+    max-width: 600px;
     width: 90%;
     position: relative;
-    z-index: 1; /* Ensure container is above background elements */
+    z-index: 10;
+    transition: transform 0.3s ease;
 }
 
 header h1 {
-    font-family: 'Parisienne', cursive; /* Elegant, script font for the header */
-    font-size: 3.5em; /* Large, prominent heading */
-    color: #d1495b; /* A romantic deep rose color */
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    font-family: 'Parisienne', cursive;
+    font-size: 3.8em;
+    color: #d1495b;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 10px rgba(209, 73, 91, 0.2);
 }
 
 .love-message {
-    font-size: 1.2em;
-    line-height: 1.6;
-    margin-bottom: 25px;
-    color: #6a6a6a;
+    font-size: 1.15em;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    color: #5d5d5d;
+    font-weight: 400;
 }
 
+/* The Secret Question Area */
 .proposal-question {
     font-family: 'Parisienne', cursive;
-    font-size: 4em; /* Very large for the main question */
-    color: #a3333d; /* Even deeper romantic red */
-    margin: 40px 0;
-    animation: pulse 2s infinite alternate; /* Gentle pulsing effect */
+    font-size: 3.5em;
+    color: #a3333d;
+    margin: 35px 0;
+    font-weight: bold;
+    /* Soft Glow Animation */
+    animation: glow 2.5s infinite alternate;
 }
 
 .buttons-container {
     display: flex;
     justify-content: center;
-    gap: 25px; /* Space between buttons */
-    margin-top: 40px;
+    gap: 30px;
+    margin-top: 30px;
 }
 
 .proposal-btn {
-    padding: 18px 40px;
-    font-size: 1.4em;
+    padding: 15px 45px;
+    font-size: 1.2em;
     font-weight: 700;
     border: none;
-    border-radius: 50px; /* Pill-shaped buttons */
+    border-radius: 50px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .yes-btn {
-    background-color: #2ecc71; /* Green for 'Yes' */
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
 }
 
 .yes-btn:hover {
-    background-color: #27ae60;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 15px 25px rgba(46, 204, 113, 0.4);
 }
 
 .no-btn {
-    background-color: #e74c3c; /* Red for 'No' (or 'More Time') */
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
 }
 
 .no-btn:hover {
-    background-color: #c0392b;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(0.9) translateY(2px);
+    opacity: 0.8;
 }
 
 .logout-btn {
-    margin-top: 50px;
-    padding: 10px 25px;
-    background-color: transparent;
-    border: 1px solid #d1495b;
+    margin-top: 40px;
+    background: none;
+    border: none;
     color: #d1495b;
-    border-radius: 25px;
+    text-decoration: underline;
     cursor: pointer;
-    font-size: 1em;
-    transition: all 0.3s ease;
+    font-size: 0.9em;
+    opacity: 0.7;
 }
 
-.logout-btn:hover {
-    background-color: #d1495b;
-    color: white;
-    transform: scale(1.05);
+/* --- ✨ BEAUTIFUL ANIMATIONS --- */
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* Optional: Background animation */
-.background-elements {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Make sure they don't block clicks */
-    overflow: hidden;
+@keyframes glow {
+    from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff9a9e; }
+    to { text-shadow: 0 0 10px #fff, 0 0 20px #ff9a9e, 0 0 30px #ff9a9e; }
 }
 
-/* Example: Floating hearts */
-.heart {
-    position: absolute;
-    background-color: rgba(255, 100, 100, 0.3);
-    width: 20px;
-    height: 20px;
-    transform: rotate(-45deg);
-    animation: floatHeart 15s infinite ease-in-out;
-    border-radius: 50% 50% 0 0; /* Creates heart shape */
-}
-.heart:before, .heart:after {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: rgba(255, 100, 100, 0.3);
-    border-radius: 50%;
-}
-.heart:before {
-    left: -10px;
-}
-.heart:after {
-    top: -10px;
+/* Adding a subtle zoom to the container on load */
+#main-content {
+    animation: fadeInContainer 1.5s ease-out;
 }
 
-/* Positioning and animating individual hearts */
-.heart:nth-child(1) { left: 10%; animation-delay: 0s; }
-.heart:nth-child(2) { left: 30%; animation-delay: 3s; width: 25px; height: 25px; }
-.heart:nth-child(3) { left: 60%; animation-delay: 6s; }
-.heart:nth-child(4) { left: 80%; animation-delay: 9s; width: 18px; height: 18px; }
-.heart:nth-child(5) { left: 45%; animation-delay: 12s; width: 22px; height: 22px; }
-
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
-}
-
-@keyframes floatHeart {
-    0% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translateY(-50vh) rotate(-45deg); opacity: 0; }
+@keyframes fadeInContainer {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
