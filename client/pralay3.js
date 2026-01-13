@@ -24,7 +24,7 @@ async function login() {
 
     try {
         // Ensure you have the leading slash "/" for the API call
-        const response = await fetch("/api/login", {
+        const response = await fetch("api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -40,19 +40,15 @@ async function login() {
             // but the Cookie set by the server is what actually "unlocks" the SSR page.
             localStorage.setItem("token", data.token);
 
-            // UPDATED: Standardized success message
             msg.innerText = "Login successful!";
             msg.classList.add("success");
             msb.classList.remove("hidden");
 
             setTimeout(() => {
-                // SSR CHANGE: Redirect to the ROUTE using replace to kill history loops
-                window.location.replace("/dashboard"); 
+                // SSR CHANGE: Redirect to the ROUTE, not the FILE
+                window.location.href = "/dashboard"; 
             }, 1200);
         } else {
-            // UPDATED: Clear any old tokens on failure so manipulation can't reuse them
-            localStorage.removeItem("token");
-            
             msg.innerText = data.message || "Incorrect credentials";
             msg.classList.add("wrong");
             msb.classList.remove("hidden");
