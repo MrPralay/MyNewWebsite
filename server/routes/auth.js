@@ -9,7 +9,6 @@ router.post('/register', async (req, res) => {
     try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Ensure your User model has currentSessionId AND authId fields
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
         res.status(201).json({ message: 'User registered' });
@@ -28,16 +27,15 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-        // 1. GENERATE SESSION ID & MASTER AUTH ID
         const sessionId = crypto.randomBytes(16).toString('hex');
-        const masterAuthId = crypto.randomBytes(24).toString('hex'); // This is your Master Key
+        const masterAuthId = crypto.randomBytes(24).toString('hex'); 
 
-        // 2. SAVE BOTH TO DATABASE
+        // UPDATED: Save Session, Master Key, AND the current Timestamp
         user.currentSessionId = sessionId;
-        user.authId = masterAuthId; // The key you'll find in MongoDB
+        user.authId = masterAuthId; 
+        user.authIdCreatedAt = new Date(); // <--- This starts the timer
         await user.save();
 
-        // 3. INCLUDE SESSION ID IN THE JWT (Standard Security)
         const token = jwt.sign(
             { id: user._id, username: user.username, sessionId: sessionId }, 
             process.env.JWT_SECRET, 
@@ -51,9 +49,7 @@ router.post('/login', async (req, res) => {
             maxAge: 3600000    
         });
 
-        // We do NOT send masterAuthId in a cookie automatically. 
-        // You will go to MongoDB Atlas to copy it for your manual test.
-        res.json({ message: "Login successful. Master Key generated in DB." });
+        res.json({ message: "Login successful. Master Key expires in 15 mins." });
         
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -66,15 +62,15 @@ router.post('/logout', async (req, res) => {
         if (token) {
             const decoded = jwt.decode(token);
             if (decoded) {
-                // PRO SECURITY: Wipe BOTH the Session and the Master Key
                 await User.findByIdAndUpdate(decoded.id, { 
                     currentSessionId: null,
-                    authId: null 
+                    authId: null,
+                    authIdCreatedAt: null // Wipe the timer too
                 });
             }
         }
         res.clearCookie('token');
-        res.clearCookie('master_key'); // Clears the manual cookie if it exists
+        res.clearCookie('master_key'); 
         res.json({ message: "Logged out. All keys destroyed." });
     } catch (err) {
         res.status(500).json({ error: "Logout error" });

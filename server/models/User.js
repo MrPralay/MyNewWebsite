@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
   authId: {
     type: String,
     default: null
+  },
+  // --- THE TIMER ADDITION ---
+  // Stores the exact time the Master Key was created so we can expire it after 15 mins
+  authIdCreatedAt: {
+    type: Date,
+    default: null
   }
 });
 
