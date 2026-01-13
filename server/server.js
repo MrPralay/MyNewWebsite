@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
 });
 
 // 7. CATCH-ALL (Redirects any weird 404s back to login)
-app.get('.*', (req, res) => {
+app.get('/:path*', (req, res) => {
     res.redirect('/');
 });
 
