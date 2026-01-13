@@ -5,8 +5,10 @@
     const questionText = document.getElementById('proposal-text');
     const loader = document.getElementById("loader");
     const content = document.getElementById("main-content");
+    const container = document.querySelector('.container');
 
-    // Use absolute URL for local testing, change to "" for Render
+    // Set to "http://localhost:5000" for local testing
+    // Set to "" when you deploy to Render
     const API_URL = ""; 
 
     // 2. Immediate Redirect if no token exists
@@ -16,7 +18,7 @@
     }
 
     try {
-        // 3. Verify token with server (The Wall)
+        // 3. Verify token with server
         const response = await fetch(`${API_URL}/api/dashboard-data`, {
             method: "GET",
             headers: {
@@ -27,34 +29,40 @@
         if (response.ok) {
             const data = await response.json();
             
-            // 1. Inject the data
+            // 4. Inject Server Data
             if (welcomeMessage) welcomeMessage.innerText = `My Dearest ${data.user},`;
             if (questionText) questionText.innerText = data.message;
 
-            // 2. UNLOCK THE UI
-            // Remove the forced white background
+            // 5. UNLOCK THE UI (The "Reveal")
+            // Remove the white background lockdown
             document.body.style.setProperty("background", "", "important");
-            document.documentElement.style.background = "";
+            document.documentElement.style.setProperty("background", "", "important");
             
-            // Show the containers
-            const container = document.querySelector('.container');
-            if (container) container.style.display = "block";
+            // Force the container and content to show using !important
+            if (container) {
+                container.style.setProperty("display", "block", "important");
+                container.style.setProperty("opacity", "1", "important");
+            }
             
             if (content) {
                 content.style.setProperty("display", "block", "important");
-                content.style.opacity = "1";
+                content.style.setProperty("opacity", "1", "important");
             }
             
-            if (loader) loader.style.display = "none";
-            document.body.style.overflow = "auto"; // Restore scrolling
-        
-        } 
-        else {
-            // Server rejected token (Hacker/Expired)
+            // Hide the loader
+            if (loader) {
+                loader.style.setProperty("display", "none", "important");
+            }
+            
+            // Allow scrolling again
+            document.body.style.setProperty("overflow", "auto", "important");
+
+        } else {
+            // Server rejected token (Burp Suite manipulation or Expired Session)
             throw new Error("Unauthorized");
         }
     } catch (e) {
-        // Clear storage and kick back to login
+        console.error("Access denied:", e);
         localStorage.removeItem("token");
         window.location.replace("index.html");
     }
@@ -84,4 +92,4 @@ function handleNo() {
 function logout() {
     localStorage.removeItem("token");
     window.location.replace("index.html");
-}
+}   
