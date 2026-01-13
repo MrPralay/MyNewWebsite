@@ -14,16 +14,14 @@ app.use(cookieParser());
 const protect = (req, res, next) => {
     const token = req.cookies.token; 
     
-    // 1. Check for token
     if (!token) {
-        console.log("Blocking: No token found."); // For your terminal logs
+        console.log("❌ No Token: Redirecting to Login");
         return res.redirect('/'); 
     }
 
-    // 2. Verify token
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
-            console.log("Blocking: Invalid token.");
+            console.log("❌ Invalid Token: Redirecting to Login");
             return res.redirect('/'); 
         }
         req.user = user;
@@ -31,25 +29,25 @@ const protect = (req, res, next) => {
     });
 };
 
-// --- ROUTES ORDER (DO NOT CHANGE) ---
+// --- ROUTES ORDER (STRICT) ---
 
-// 1. Auth API (Login/Register)
+// 1. Auth API
 app.use('/api', authRoutes);
 
-// 2. The Dashboard (PROTECTED)
-// This MUST stay above express.static
+// 2. The Dashboard (Protected)
+// This MUST stay above express.static so the bouncer catches it first
 app.get('/dashboard', protect, (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    // Ensure this path leads to the /private folder OUTSIDE of /client
+    // Points to the PRIVATE folder
     res.sendFile(path.join(__dirname, '../private/proposal_dashboard.html'));
 });
 
-// 3. Private Assets (PROTECTED)
+// 3. Private Assets (Protected)
 app.get('/private/:fileName', protect, (req, res) => {
     res.sendFile(path.join(__dirname, '../private', req.params.fileName));
 });
 
-// 4. API Data (PROTECTED)
+// 4. API Data (Protected)
 app.get('/api/dashboard-data', protect, (req, res) => {
     res.json({
         message: "Will you marry me?",
@@ -57,17 +55,17 @@ app.get('/api/dashboard-data', protect, (req, res) => {
     });
 });
 
-// 5. PUBLIC FILES (Only for index.html, login CSS/JS)
-// Make sure proposal_dashboard.html is NOT inside this folder
+// 5. Public Static Files
+// DO NOT put proposal_dashboard.html in this /client folder
 app.use(express.static(path.join(__dirname, '../client')));
 
-// 6. Landing Page
+// 6. Root Route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
-// 7. CATCH-ALL (Redirects any weird 404s back to login)
-app.get('/:path*', (req, res) => {
+// 7. Global Catch-all (Final Security Layer)
+app.get('*', (req, res) => {
     res.redirect('/');
 });
 
