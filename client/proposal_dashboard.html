@@ -7,10 +7,22 @@
     <link rel="stylesheet" href="proposal_style.css">
     <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Professional Route Guard: Hide content by default */
-        #main-content { visibility: hidden; opacity: 0; transition: opacity 0.5s ease; }
-        #loader { display: none; /* Hide loader too if you want it purely white */}
-    </style>
+    /* Force everything to be a blank white screen immediately */
+    html, body {
+        background: #ffffff !important; 
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden; /* Stops scrolling while hidden */
+    }
+
+    /* Hide every container inside the body */
+    .container, #main-content, #loader {
+        display: none !important;
+        opacity: 0;
+    }
+</style>
 </head>
 <body>
     <div class="container">

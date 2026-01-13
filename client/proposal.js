@@ -27,18 +27,29 @@
         if (response.ok) {
             const data = await response.json();
             
-            // 4. Inject real data from server
+            // 1. Inject the data
             if (welcomeMessage) welcomeMessage.innerText = `My Dearest ${data.user},`;
             if (questionText) questionText.innerText = data.message;
 
-            // 5. Reveal UI only after successful verification
-            if (loader) loader.style.display = "none";
+            // 2. UNLOCK THE UI
+            // Remove the forced white background
+            document.body.style.setProperty("background", "", "important");
+            document.documentElement.style.background = "";
+            
+            // Show the containers
+            const container = document.querySelector('.container');
+            if (container) container.style.display = "block";
+            
             if (content) {
-                content.style.visibility = "visible";
+                content.style.setProperty("display", "block", "important");
                 content.style.opacity = "1";
-                content.style.display = "block";
             }
-        } else {
+            
+            if (loader) loader.style.display = "none";
+            document.body.style.overflow = "auto"; // Restore scrolling
+        
+        } 
+        else {
             // Server rejected token (Hacker/Expired)
             throw new Error("Unauthorized");
         }
