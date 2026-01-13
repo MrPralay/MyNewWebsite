@@ -1,19 +1,23 @@
-// This runs as soon as the page loads
-document.addEventListener("DOMContentLoaded", async () => {
+(async function verifyAccess() {
+    // 1. Configuration
     const token = localStorage.getItem("token");
     const welcomeMessage = document.getElementById('welcomeMessage');
-    const questionText = document.getElementById('proposal-text'); // Make sure you have this ID in HTML
+    const questionText = document.getElementById('proposal-text');
+    const loader = document.getElementById("loader");
+    const content = document.getElementById("main-content");
 
-    // 1. If no token at all, kick them out immediately
+    // Use absolute URL for local testing, change to "" for Render
+    const API_URL = ""; 
+
+    // 2. Immediate Redirect if no token exists
     if (!token) {
-        window.location.href = "index.html"; 
+        window.location.replace("index.html");
         return;
     }
 
     try {
-        // 2. ASK THE SERVER FOR THE SECRET DATA (The "Wall")
-        // This is what stops Burp Suite. The server checks the JWT signature.
-        const response = await fetch("/api/dashboard-data", {
+        // 3. Verify token with server (The Wall)
+        const response = await fetch(`${API_URL}/api/dashboard-data`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -23,41 +27,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (response.ok) {
             const data = await response.json();
             
-            // Success! Set the greeting and the secret message
-            if (welcomeMessage) {
-                welcomeMessage.innerText = `My Dearest ${data.user},`;
-            }
-            if (questionText) {
-                questionText.innerText = data.message;
+            // 4. Inject real data from server
+            if (welcomeMessage) welcomeMessage.innerText = `My Dearest ${data.user},`;
+            if (questionText) questionText.innerText = data.message;
+
+            // 5. Reveal UI only after successful verification
+            if (loader) loader.style.display = "none";
+            if (content) {
+                content.style.visibility = "visible";
+                content.style.opacity = "1";
+                content.style.display = "block";
             }
         } else {
-            // 3. HACK DETECTED! 
-            // If Burp Suite was used to "fake" the login, the server will return 401/403.
-            alert("Security Error: Invalid Session. Please log in properly.");
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
+            // Server rejected token (Hacker/Expired)
+            throw new Error("Unauthorized");
         }
     } catch (e) {
-        console.error("Connection failed:", e);
-        window.location.href = "index.html";
+        // Clear storage and kick back to login
+        localStorage.removeItem("token");
+        window.location.replace("index.html");
     }
-});
+})();
 
-// 2. Logic for the 'Yes' Button
+// 6. Button Interactions
 function handleYes() {
     const questionContainer = document.querySelector('.proposal-question');
     if (questionContainer) {
         questionContainer.innerHTML = "I am the happiest person alive! ❤️💍";
         questionContainer.style.color = "#2ecc71";
     }
-    alert("She said YES! My heart is full. I love you forever!");
+    alert("She said YES!");
 }
 
-// 3. Logic for the 'No' Button
 function handleNo() {
     const noBtn = document.querySelector('.no-btn');
-    alert("Take all the time you need, my love. My heart belongs to you regardless. 😊");
-    
+    alert("Take all the time you need, my love.");
     if (noBtn) {
         noBtn.innerText = "Still thinking...";
         noBtn.style.opacity = "0.5";
@@ -65,10 +69,8 @@ function handleNo() {
     }
 }
 
-// 4. Logout Function
+// 7. Logout
 function logout() {
-    if (confirm("Are you sure you want to leave this moment?")) {
-        localStorage.removeItem("token");
-        window.location.href = "index.html";
-    }
+    localStorage.removeItem("token");
+    window.location.replace("index.html");
 }

@@ -23,7 +23,6 @@ async function handleRegister() {
         if (response.ok) {
             msg.innerText = "Registration Successful! Redirecting...";
             msg.className = "success";
-            // Wait 2 seconds then go to login
             setTimeout(() => {
                 window.location.href = "index.html";
             }, 2000);
