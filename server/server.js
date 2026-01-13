@@ -5,7 +5,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth');
-const User = require('./models/User'); // <--- ADD THIS to access the DB
+const User = require('./models/User'); 
 
 const app = express();
 app.use(express.json());
@@ -20,20 +20,15 @@ const protect = async (req, res, next) => {
     }
 
     try {
-        // 1. Verify the JWT first
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // 2. Look up the user in DB to check their session
         const user = await User.findById(decoded.id);
 
-        // 3. THE DOUBLE LOCK: Check if session ID matches
         if (!user || user.currentSessionId !== decoded.sessionId) {
             console.log("❌ Session expired or replaced. Redirecting...");
-            res.clearCookie('token'); // Wipe the invalid cookie
+            res.clearCookie('token'); 
             return res.redirect('/'); 
         }
 
-        // Attach user info to the request
         req.user = user;
         next();
     } catch (err) {
@@ -42,7 +37,7 @@ const protect = async (req, res, next) => {
     }
 };
 
-// --- ROUTES ORDER ---
+// --- ROUTES ---
 
 app.use('/api', authRoutes);
 
@@ -68,8 +63,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
-// Fix for Node v22 / Express 5 wildcard error
-app.get('/:path*', (req, res) => {
+// --- THE FIX FOR NODE v22 ---
+// This acts as a catch-all for any undefined routes without using symbols that crash the server
+app.use((req, res) => {
     res.redirect('/');
 });
 
