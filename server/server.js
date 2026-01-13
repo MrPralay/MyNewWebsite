@@ -14,14 +14,13 @@ app.use(cookieParser());
 const protect = (req, res, next) => {
     const token = req.cookies.token; 
     
+    // If no cookie, stop them immediately and send to login
     if (!token) {
-        console.log("❌ No Token: Redirecting to Login");
         return res.redirect('/'); 
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
-            console.log("❌ Invalid Token: Redirecting to Login");
             return res.redirect('/'); 
         }
         req.user = user;
@@ -29,16 +28,15 @@ const protect = (req, res, next) => {
     });
 };
 
-// --- ROUTES ORDER (STRICT) ---
+// --- ROUTES ORDER MATTERS ---
 
 // 1. Auth API
 app.use('/api', authRoutes);
 
 // 2. The Dashboard (Protected)
-// This MUST stay above express.static so the bouncer catches it first
 app.get('/dashboard', protect, (req, res) => {
+    // Kill browser cache so it checks the cookie every single time
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    // Points to the PRIVATE folder
     res.sendFile(path.join(__dirname, '../private/proposal_dashboard.html'));
 });
 
@@ -47,7 +45,7 @@ app.get('/private/:fileName', protect, (req, res) => {
     res.sendFile(path.join(__dirname, '../private', req.params.fileName));
 });
 
-// 4. API Data (Protected)
+// 4. Dashboard Data API (Protected)
 app.get('/api/dashboard-data', protect, (req, res) => {
     res.json({
         message: "Will you marry me?",
@@ -55,18 +53,12 @@ app.get('/api/dashboard-data', protect, (req, res) => {
     });
 });
 
-// 5. Public Static Files
-// DO NOT put proposal_dashboard.html in this /client folder
+// 5. Public Static Files (MUST be after protected routes)
 app.use(express.static(path.join(__dirname, '../client')));
 
 // 6. Root Route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
-});
-
-// 7. Global Catch-all (Final Security Layer)
-app.get('*', (req, res) => {
-    res.redirect('/');
 });
 
 // Database Connection
