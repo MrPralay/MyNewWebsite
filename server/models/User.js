@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
   currentSessionId: { 
     type: String, 
     default: null 
+  },
+  // THE MASTER KEY: Stores the temporary ID used for the "Inspect" redirect trick
+  authId: {
+    type: String,
+    default: null
   }
 });
 
