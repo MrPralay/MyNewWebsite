@@ -13,30 +13,39 @@ app.use(cookieParser());
 // --- SECURITY MIDDLEWARE ---
 const protect = (req, res, next) => {
     const token = req.cookies.token; 
-    if (!token) return res.redirect('/'); 
+    
+    // If no cookie, stop them immediately and send to login
+    if (!token) {
+        return res.redirect('/'); 
+    }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.redirect('/'); 
+        if (err) {
+            return res.redirect('/'); 
+        }
         req.user = user;
         next();
     });
 };
 
-// --- ROUTES ---
+// --- ROUTES ORDER MATTERS ---
 
-// A. Serve Dashboard HTML (KEEP THIS ONE - IT HAS THE CACHE FIX)
+// 1. Auth API
+app.use('/api', authRoutes);
+
+// 2. The Dashboard (Protected)
 app.get('/dashboard', protect, (req, res) => {
-    // This kills the "Bitch" (prevents browser from showing old splash screens without checking cookie)
+    // Kill browser cache so it checks the cookie every single time
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.sendFile(path.join(__dirname, '../private/proposal_dashboard.html'));
 });
 
-// B. Serve Private Assets (CSS/JS)
+// 3. Private Assets (Protected)
 app.get('/private/:fileName', protect, (req, res) => {
     res.sendFile(path.join(__dirname, '../private', req.params.fileName));
 });
 
-// C. API Data
+// 4. Dashboard Data API (Protected)
 app.get('/api/dashboard-data', protect, (req, res) => {
     res.json({
         message: "Will you marry me?",
@@ -44,22 +53,18 @@ app.get('/api/dashboard-data', protect, (req, res) => {
     });
 });
 
-// D. Logout (Clears Cookie)
-app.post('/api/logout', (req, res) => {
-    res.clearCookie('token');
-    res.status(200).json({ message: "Logged out" });
-});
-
-// E. Public Files
+// 5. Public Static Files (MUST be after protected routes)
 app.use(express.static(path.join(__dirname, '../client')));
 
+// 6. Root Route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
-app.use('/api', authRoutes);
-
-mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ Connected'));
+// Database Connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('✅ Secure Connection Established'))
+    .catch(err => console.error('Database connection error:', err));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server locked and loaded on port ${PORT}`));
