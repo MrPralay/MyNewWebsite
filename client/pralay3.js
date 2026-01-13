@@ -1,5 +1,6 @@
 window.addEventListener("load", () => {
     setTimeout(() => {
+        // Keeping your splash/loader logic
         document.getElementById("loader").style.display = "none";
         document.getElementById("main-content").style.display = "block";
     }, 1000);
@@ -22,6 +23,7 @@ async function login() {
     }
 
     try {
+        // Ensure you have the leading slash "/" for the API call
         const response = await fetch("api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -34,13 +36,17 @@ async function login() {
         const data = await response.json();
 
         if (response.ok) {
+            // OPTIONAL: You can still store the token in localStorage if you want
+            // but the Cookie set by the server is what actually "unlocks" the SSR page.
             localStorage.setItem("token", data.token);
+
             msg.innerText = "Login successful!";
             msg.classList.add("success");
             msb.classList.remove("hidden");
 
             setTimeout(() => {
-                window.location.href = "proposal_dashboard.html";
+                // SSR CHANGE: Redirect to the ROUTE, not the FILE
+                window.location.href = "/dashboard"; 
             }, 1200);
         } else {
             msg.innerText = data.message || "Incorrect credentials";

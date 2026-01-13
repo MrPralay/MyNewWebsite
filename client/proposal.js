@@ -1,24 +1,14 @@
 (async function verifyAccess() {
-    const token = localStorage.getItem("token");
     const splash = document.getElementById('splash-screen');
     const content = document.getElementById('main-content');
     const container = document.querySelector('.container');
     const welcomeMessage = document.getElementById('welcomeMessage');
     const questionText = document.getElementById('proposal-text');
 
-    // Change to "" when you deploy to Render
-    const API_URL = ""; 
-
-    if (!token) {
-        window.location.replace("index.html");
-        return;
-    }
-
     try {
-        const response = await fetch(`${API_URL}/api/dashboard-data`, {
-            method: "GET",
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+        // SSR MAGIC: No need to manually send headers! 
+        // The browser automatically sends the 'token' cookie.
+        const response = await fetch("/api/dashboard-data");
 
         if (response.ok) {
             const data = await response.json();
@@ -27,7 +17,7 @@
             if (welcomeMessage) welcomeMessage.innerText = `My Dearest ${data.user},`;
             if (questionText) questionText.innerText = data.message;
 
-            // 2. Prepare the reveal
+            // 2. Prepare the Reveal
             if (container) {
                 container.style.setProperty("display", "block", "important");
                 container.style.setProperty("opacity", "1", "important");
@@ -44,20 +34,18 @@
                     splash.style.display = "none";
                     document.body.style.overflow = "auto";
                 }, 800);
-            }, 1000); // Partner sees the heart for at least 1 second
+            }, 1000); 
 
         } else {
-            throw new Error("Invalid Token");
+            // If the API says no, redirect to login
+            throw new Error("Unauthorized");
         }
     } catch (e) {
-        // Hacker Path: Clear token and kick out after a small delay
-        localStorage.removeItem("token");
-        setTimeout(() => {
-            window.location.replace("index.html");
-        }, 1200); 
+        window.location.replace("/");
     }
 })();
 
+// Button Interactions
 function handleYes() {
     const questionContainer = document.querySelector('.proposal-question');
     if (questionContainer) {
@@ -72,6 +60,10 @@ function handleNo() {
 }
 
 function logout() {
-    localStorage.removeItem("token");
-    window.location.replace("index.html");
+    // Call the logout route to clear the cookie
+    fetch("/api/logout", { method: "POST" })
+        .then(() => {
+            localStorage.removeItem("token");
+            window.location.replace("/");
+        });
 }

@@ -4,32 +4,53 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path'); 
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser'); // New: To read cookies for SSR
 const authRoutes = require('./routes/auth');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser()); // Use this to read the "token" cookie
 
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+// 1. Protection Middleware for HTML Pages
+const protectDashboard = (req, res, next) => {
+    // For SSR, we usually check cookies because headers are hard to send via browser URL bar
+    const token = req.cookies.token; 
 
-    if (!token) return res.status(401).json({ message: "Access Denied" });
+    if (!token) {
+        return res.redirect('/'); // No token? Kicked back to login before seeing a single line of HTML
+    }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ message: "Invalid Token" });
+        if (err) return res.redirect('/'); // Invalid token? Redirected.
         req.user = user;
         next();
     });
 };
 
-app.get('/api/dashboard-data', authenticateToken, (req, res) => {
-    res.json({
-        message: "Will you marry me?",
-        user: req.user.username 
+// 2. The SSR Dashboard Route
+// This replaces just "opening the file." The server validates first.
+app.get('/dashboard', protectDashboard, (req, res) => {
+    // Move proposal_dashboard.html one folder UP or into a "private" folder 
+    // so express.static doesn't serve it automatically.
+    res.sendFile(path.join(__dirname, '../client/proposal_dashboard.html'));
+});
+
+// 3. API Route for the actual data
+app.get('/api/dashboard-data', (req, res) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "Access Denied" });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ message: "Invalid Token" });
+        res.json({
+            message: "Will you marry me?",
+            user: user.username 
+        });
     });
 });
 
+// Static files (Login page, CSS, JS)
 app.use(express.static(path.join(__dirname, '../client')));
 
 app.get('/', (req, res) => {

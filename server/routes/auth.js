@@ -33,10 +33,30 @@ router.post('/login', async (req, res) => {
         process.env.JWT_SECRET, 
         { expiresIn: '1h' }
     );
-    res.json({ token });
+
+    // --- SSR UPDATE START ---
+    // Set the token as an HttpOnly cookie
+    res.cookie('token', token, {
+        httpOnly: true, // Prevents JavaScript (and hackers) from stealing the token
+        secure: process.env.NODE_ENV === 'production', // Use HTTPS in production (Render)
+        sameSite: 'strict', // Prevents CSRF attacks
+        maxAge: 3600000 // 1 hour in milliseconds
+    });
+    // --- SSR UPDATE END ---
+
+    // We still send the token back in JSON for any client-side scripts that need it,
+    // but the Cookie is what the Server will use for SSR.
+    res.json({ token, message: "Login successful" });
+    
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Added a logout route to clear the cookie
+router.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ message: "Logged out" });
 });
 
 module.exports = router;
