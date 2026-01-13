@@ -24,8 +24,10 @@ const protect = (req, res, next) => {
 
 // --- ROUTES ---
 
-// A. Serve Dashboard HTML
+// A. Serve Dashboard HTML (KEEP THIS ONE - IT HAS THE CACHE FIX)
 app.get('/dashboard', protect, (req, res) => {
+    // This kills the "Bitch" (prevents browser from showing old splash screens without checking cookie)
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.sendFile(path.join(__dirname, '../private/proposal_dashboard.html'));
 });
 
