@@ -8,18 +8,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 1. Splash Screen - Covers everything immediately */
+        /* Splash Screen */
         #splash-screen {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            background-color: #fff5f8 !important; /* Romantic Pink Background */
+            background-color: #fff5f8; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10000;
-            transition: opacity 0.8s ease;
+            opacity: 1;
+            transition: opacity 1s ease;
         }
 
         .heart-loader {
@@ -39,10 +40,13 @@
             margin-top: 20px;
         }
 
-        /* 2. Content Lockdown - Keeps the dashboard invisible behind the splash */
-        .container, #main-content {
-            display: none !important;
+        /* Crucial Change: We removed !important. 
+           This allows JS to change display to "block" when ready.
+        */
+        .container {
+            display: none; 
             opacity: 0;
+            transition: opacity 1.5s ease;
         }
     </style>
 </head>
@@ -53,7 +57,7 @@
         <p class="loading-text">Preparing something special...</p>
     </div>
 
-    <div class="container">
+    <div class="container" id="main-container">
         <div id="main-content">
             <header>
                 <h1 id="welcomeMessage"></h1>
