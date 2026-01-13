@@ -23,8 +23,8 @@ async function login() {
     }
 
     try {
-        // Ensure you have the leading slash "/" for the API call
-        const response = await fetch("api/login", {
+        // ADDED "/" BEFORE api/login TO ENSURE CORRECT ROUTING
+        const response = await fetch("/api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -36,8 +36,6 @@ async function login() {
         const data = await response.json();
 
         if (response.ok) {
-            // OPTIONAL: You can still store the token in localStorage if you want
-            // but the Cookie set by the server is what actually "unlocks" the SSR page.
             localStorage.setItem("token", data.token);
 
             msg.innerText = "Login successful!";
@@ -45,10 +43,12 @@ async function login() {
             msb.classList.remove("hidden");
 
             setTimeout(() => {
-                // SSR CHANGE: Redirect to the ROUTE, not the FILE
-                window.location.href = "/dashboard"; 
+                // USE location.assign TO ENSURE COOKIE IS PASSED PROPERLY
+                window.location.assign("/dashboard"); 
             }, 1200);
         } else {
+            // CLEAR TOKEN ON FAILURE
+            localStorage.removeItem("token");
             msg.innerText = data.message || "Incorrect credentials";
             msg.classList.add("wrong");
             msb.classList.remove("hidden");
