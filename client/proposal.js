@@ -1,74 +1,63 @@
 (async function verifyAccess() {
-    // 1. Configuration
     const token = localStorage.getItem("token");
+    const splash = document.getElementById('splash-screen');
+    const content = document.getElementById('main-content');
+    const container = document.querySelector('.container');
     const welcomeMessage = document.getElementById('welcomeMessage');
     const questionText = document.getElementById('proposal-text');
-    const loader = document.getElementById("loader");
-    const content = document.getElementById("main-content");
-    const container = document.querySelector('.container');
 
-    // Set to "http://localhost:5000" for local testing
-    // Set to "" when you deploy to Render
+    // Change to "" when you deploy to Render
     const API_URL = ""; 
 
-    // 2. Immediate Redirect if no token exists
     if (!token) {
         window.location.replace("index.html");
         return;
     }
 
     try {
-        // 3. Verify token with server
         const response = await fetch(`${API_URL}/api/dashboard-data`, {
             method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+            headers: { "Authorization": `Bearer ${token}` }
         });
 
         if (response.ok) {
             const data = await response.json();
             
-            // 4. Inject Server Data
+            // 1. Inject server data
             if (welcomeMessage) welcomeMessage.innerText = `My Dearest ${data.user},`;
             if (questionText) questionText.innerText = data.message;
 
-            // 5. UNLOCK THE UI (The "Reveal")
-            // Remove the white background lockdown
-            document.body.style.setProperty("background", "", "important");
-            document.documentElement.style.setProperty("background", "", "important");
-            
-            // Force the container and content to show using !important
+            // 2. Prepare the reveal
             if (container) {
                 container.style.setProperty("display", "block", "important");
                 container.style.setProperty("opacity", "1", "important");
             }
-            
             if (content) {
                 content.style.setProperty("display", "block", "important");
                 content.style.setProperty("opacity", "1", "important");
             }
-            
-            // Hide the loader
-            if (loader) {
-                loader.style.setProperty("display", "none", "important");
-            }
-            
-            // Allow scrolling again
-            document.body.style.setProperty("overflow", "auto", "important");
+
+            // 3. Smooth Fade Out of Splash Screen
+            setTimeout(() => {
+                splash.style.opacity = "0";
+                setTimeout(() => {
+                    splash.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }, 800);
+            }, 1000); // Partner sees the heart for at least 1 second
 
         } else {
-            // Server rejected token (Burp Suite manipulation or Expired Session)
-            throw new Error("Unauthorized");
+            throw new Error("Invalid Token");
         }
     } catch (e) {
-        console.error("Access denied:", e);
+        // Hacker Path: Clear token and kick out after a small delay
         localStorage.removeItem("token");
-        window.location.replace("index.html");
+        setTimeout(() => {
+            window.location.replace("index.html");
+        }, 1200); 
     }
 })();
 
-// 6. Button Interactions
 function handleYes() {
     const questionContainer = document.querySelector('.proposal-question');
     if (questionContainer) {
@@ -79,17 +68,10 @@ function handleYes() {
 }
 
 function handleNo() {
-    const noBtn = document.querySelector('.no-btn');
     alert("Take all the time you need, my love.");
-    if (noBtn) {
-        noBtn.innerText = "Still thinking...";
-        noBtn.style.opacity = "0.5";
-        noBtn.disabled = true;
-    }
 }
 
-// 7. Logout
 function logout() {
     localStorage.removeItem("token");
     window.location.replace("index.html");
-}   
+}

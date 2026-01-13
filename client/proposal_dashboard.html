@@ -6,33 +6,57 @@
     <title>My Dearest Love...</title>
     <link rel="stylesheet" href="proposal_style.css">
     <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-    /* Force everything to be a blank white screen immediately */
-    html, body {
-        background: #ffffff !important; 
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        overflow: hidden; /* Stops scrolling while hidden */
-    }
+        /* 1. Splash Screen - Covers everything immediately */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: #fff5f8 !important; /* Romantic Pink Background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease;
+        }
 
-    /* Hide every container inside the body */
-    .container, #main-content, #loader {
-        display: none !important;
-        opacity: 0;
-    }
-</style>
+        .heart-loader {
+            font-size: 60px;
+            animation: beat 1.2s infinite;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .loading-text {
+            font-family: 'Parisienne', cursive;
+            font-size: 28px;
+            color: #d63384;
+            margin-top: 20px;
+        }
+
+        /* 2. Content Lockdown - Keeps the dashboard invisible behind the splash */
+        .container, #main-content {
+            display: none !important;
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div id="loader">
-            <div class="heart-spinner"></div>
-        </div>
 
+    <div id="splash-screen">
+        <div class="heart-loader">❤️</div>
+        <p class="loading-text">Preparing something special...</p>
+    </div>
+
+    <div class="container">
         <div id="main-content">
             <header>
-                <h1 id="welcomeMessage">Loading...</h1>
+                <h1 id="welcomeMessage"></h1>
             </header>
             
             <main>
@@ -40,9 +64,7 @@
                     Every moment with you is a dream come true. You fill my life with joy, laughter, and an endless love that I cherish more than words can say.
                 </p>
                 
-                <div class="proposal-question" id="proposal-text">
-                    Loading your special message...
-                </div>
+                <div class="proposal-question" id="proposal-text"></div>
 
                 <div class="buttons-container">
                     <button class="proposal-btn yes-btn" onclick="handleYes()">Yes!</button>
@@ -55,6 +77,7 @@
             </footer>
         </div>
     </div>
+
     <script src="proposal.js"></script>
 </body>
 </html>
